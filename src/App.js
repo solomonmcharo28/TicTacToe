@@ -11,9 +11,7 @@ class App extends Component{
     otherState: "SomeOtherValue",
     squareID: "",
     lastPlayer: "-",
-    loggedInPerson : {
-
-    },
+    toggleOff: false,
     cells: {
       cell1 : {
             id: "cell1",
@@ -95,6 +93,9 @@ class App extends Component{
   }
 
   toggleTacHandler = (event) =>{
+    if(this.state.toggleOff){
+      return;
+    }
     const theID = event.target.id;
     console.log("button clicked " + theID + " " + this.state.playerX);
     console.log(theID);
@@ -127,6 +128,7 @@ class App extends Component{
       if(this.checkWinner("X")){
          console.log("Human has won the game");
          document.getElementById("winner").innerHTML = "Human has won the game (Xs have beaten the Os)"
+         this.state.toggleOff = true;
       }
       return;
     }
@@ -148,6 +150,7 @@ class App extends Component{
       if(this.checkWinner("O")){
         console.log("The AI has won the game");
         document.getElementById("winner").innerHTML = "AI has won the game (Os have beaten the Xs)"
+        this.state.toggleOff = true;
      }
       return;
     }
