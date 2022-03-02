@@ -2,16 +2,22 @@ import React, {Component} from 'react';
 import logo from './logo.svg';
 import ticx from './images/ticx.png';
 import tico from './images/tico.png';
-import {Button} from 'react-bootstrap';
 import './App.css';
+import {Button, Modal} from 'react-bootstrap';
+import SignUpModal from './components/modals/signupmodal';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios'
+
 
 class App extends Component{
   state = {
+    playerName: "",
     playerX: true,
     otherState: "SomeOtherValue",
     squareID: "",
     lastPlayer: "-",
     toggleOff: false,
+    cellsFilled: 0,
     cells: {
       cell1 : {
             id: "cell1",
@@ -125,11 +131,38 @@ class App extends Component{
       updateCell.invalue = "X";
       updatedCellForm[theID] = updateCell;
       this.state.cells[theID] = updateCell;
-      if(this.checkWinner("X")){
+      this.state.cellsFilled += 1;
+      if(this.state.cellsFilled >= 5 && this.checkWinner("X")){
          console.log("Human has won the game");
+         document.getElementById("winner").classList.add("winning");
          document.getElementById("winner").innerHTML = "Human has won the game (Xs have beaten the Os)"
          this.state.toggleOff = true;
+         const winner = true;
+         let config = {
+          headers:{
+            Authorization: localStorage.getItem("thisToken")
+          }
+        }
+         const newData = {
+            winner
+         }
+         axios.patch("http://localhost:3001/boards", newData, config).then((response) => {
+          console.log(response.data)
+      
+        })
+        .catch( (error) => {
+          console.log(error.message);
+        
+        });
       }
+           
+         
+         
+      
+      
+      this.checkDraw();
+      this.submitDataOnBoard();
+      this.retrieveAiResult();
       return;
     }
     else{
@@ -147,11 +180,31 @@ class App extends Component{
       updatedCellForm[theID] = updateCell;
       this.state.cells[theID] = updateCell;
       //this.setState({cells: updatedCellForm});
-      if(this.checkWinner("O")){
+      this.state.cellsFilled += 1;
+      if(this.state.cellsFilled >= 5 && this.checkWinner("O")){
         console.log("The AI has won the game");
+        document.getElementById("winner").classList.add("losing");
         document.getElementById("winner").innerHTML = "AI has won the game (Os have beaten the Xs)"
         this.state.toggleOff = true;
-     }
+        const winner = false;
+         let config = {
+          headers:{
+            Authorization: localStorage.getItem("thisToken")
+          }
+        }
+         const newData = {
+            winner
+         }
+         axios.patch("http://localhost:3001/boards", newData, config).then((response) => {
+          console.log(response.data)
+      
+        })
+        .catch( (error) => {
+          console.log(error.message);
+        
+        });
+      }
+      this.checkDraw();
       return;
     }
 
@@ -238,7 +291,48 @@ class App extends Component{
         }
       }
       }
+
+      checkDraw = () =>{
+        if(this.state.cellsFilled == 9){
+          document.getElementById("winner").innerHTML = "The Game has Ended in a Draw"
+        }
+      }
       
+      submitDataOnBoard = () =>{
+        let config = {
+          headers:{
+            Authorization: localStorage.getItem("thisToken")
+          }
+        }
+        const cells = {
+               "cell1" : this.state.cells.cell1.invalue,
+               "cell2" : this.state.cells.cell2.invalue,
+               "cell3" : this.state.cells.cell3.invalue,
+               "cell4" : this.state.cells.cell4.invalue,
+               "cell5" : this.state.cells.cell5.invalue,
+               "cell6" : this.state.cells.cell6.invalue,
+               "cell7" : this.state.cells.cell7.invalue,
+               "cell8": this.state.cells.cell8.invalue,
+               "cell9" : this.state.cells.cell9.invalue,
+           
+        }
+        const newData = {
+             cells
+        }
+        axios.patch("http://localhost:3001/boards" , newData, config)
+        .then((response) => {
+          console.log(response.data)
+      
+        })
+        .catch( (error) => {
+          console.log(error.message);
+        
+        });
+      }
+
+      retrieveAiResult = () =>{
+        return;
+      }
 
 
 
@@ -250,6 +344,7 @@ class App extends Component{
   return (
     <div className="App">
       <header className="App-header">
+        <SignUpModal></SignUpModal>
         <h1> Tic Tac Toe</h1>
         <p>This project will be Tic Tac Toe where the user competes against an AI that is based on the minimax algorithm</p>
         <div>
@@ -266,7 +361,7 @@ class App extends Component{
              <div id="cell3" className="btn-1" onClick = {this.toggleTacHandler}> </div>
              </td>
            </tr>
-           <tr>
+           <tr className="row1">
            <td className="col1">
            <div id="cell4" className="btn-1" onClick = {this.toggleTacHandler}> </div>
            </td>
@@ -277,7 +372,7 @@ class App extends Component{
              <div id="cell6" className="btn-1" onClick = {this.toggleTacHandler}> </div>
              </td>
            </tr>
-           <tr>
+           <tr className="row1">
            <td className="col1">
            <div id="cell7" className="btn-1" onClick = {this.toggleTacHandler}> </div>
            </td>
@@ -291,9 +386,10 @@ class App extends Component{
            </tbody>
          </table>
          </div>
+         <br></br>
         <p id="winner">
-          
         </p>
+        <Button onClick={() => window.location.reload(false)}>Refresh</Button>
       </header>
     </div>
   );

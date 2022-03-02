@@ -1,0 +1,71 @@
+.Input{
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+
+}
+@import url('https://fonts.googleapis.com/css?family=Quicksand|Roboto&display=swap');
+.Label{
+    font-weight: bold;
+    display: block; 
+    margin-bottom: 8px;
+    font-family: Roboto;
+
+}
+.errorMessage{
+    font-size: 0.7em;
+    color:red;
+}
+
+.InputElement{
+    outline: none;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-family: Quicksand;
+    font-size: 0.9em;
+    padding: 6px 10px;
+    display: flex; 
+    width: 300px;
+    margin: 0 auto;
+    height:45px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    transition: ease-in 0.35s;
+}
+.TextElement{
+    outline: none;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-family: Quicksand;
+    font-size: 0.9em;
+    padding: 6px 10px;
+    display: block; 
+    width: 300px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    border-radius: 5px;
+    transition: ease-in 0.35s;
+}
+
+.TextElement:focus{
+    outline: none;
+    background-color: #ccc;
+
+}
+
+
+.InputElement:focus{
+    outline: none;
+    background-color: #ccc;
+
+}
+
+.invalid{
+    border: 1px solid red;
+    background-color: salmon;
+    
+}
+.valid{
+    border: 1px solid rgb(25, 241, 25);
+    
+}
