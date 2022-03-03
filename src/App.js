@@ -2,8 +2,10 @@ import React, {Component} from 'react';
 import logo from './logo.svg';
 import ticx from './images/ticx.png';
 import tico from './images/tico.png';
+import './alphabeta.js'
 import './App.css';
 import {Button, Modal} from 'react-bootstrap';
+import{getActions, getBestMove, isTerminal} from './alphabeta.js'
 import SignUpModal from './components/modals/signupmodal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'
@@ -205,6 +207,7 @@ class App extends Component{
         });
       }
       this.checkDraw();
+      this.submitDataOnBoard();
       return;
     }
 
@@ -331,10 +334,13 @@ class App extends Component{
       }
 
       retrieveAiResult = () =>{
+        const newBoard = JSON.parse(JSON.stringify(this.state.cells)); // use this to deep copy of JSON Objects
+        const val =  getBestMove(newBoard);
+        console.log("Best Move is " + val.move + " with a score of " + val.v)
         return;
       }
 
-
+      
 
    
 
