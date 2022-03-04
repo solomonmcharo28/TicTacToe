@@ -127,7 +127,7 @@ class App extends Component{
       */
       currSquare.innerHTML = "X";
       console.log("We have added an X");
-      this.setState({playerX : false});
+      this.state.playerX  = false;
       updateCell.touched = true;
       updateCell.player = "human";
       updateCell.invalue = "X";
@@ -158,56 +158,10 @@ class App extends Component{
         });
       }
            
-         
-         
-      
       
       this.checkDraw();
       this.submitDataOnBoard();
       this.retrieveAiResult();
-      return;
-    }
-    else{
-      /*
-      const myimg2 = document.createElement("img");
-      myimg2.src = tico;
-      myimg2.classList.add("imgxo");
-      */
-      currSquare.innerHTML = "O";
-      console.log("We have added an O");
-      this.setState({playerX: true});
-      updateCell.touched = true;
-      updateCell.player = "AI";
-      updateCell.invalue = "O";
-      updatedCellForm[theID] = updateCell;
-      this.state.cells[theID] = updateCell;
-      //this.setState({cells: updatedCellForm});
-      this.state.cellsFilled += 1;
-      if(this.state.cellsFilled >= 5 && this.checkWinner("O")){
-        console.log("The AI has won the game");
-        document.getElementById("winner").classList.add("losing");
-        document.getElementById("winner").innerHTML = "AI has won the game (Os have beaten the Xs)"
-        this.state.toggleOff = true;
-        const winner = false;
-         let config = {
-          headers:{
-            Authorization: localStorage.getItem("thisToken")
-          }
-        }
-         const newData = {
-            winner
-         }
-         axios.patch("http://localhost:3001/boards", newData, config).then((response) => {
-          console.log(response.data)
-      
-        })
-        .catch( (error) => {
-          console.log(error.message);
-        
-        });
-      }
-      this.checkDraw();
-      this.submitDataOnBoard();
       return;
     }
 
@@ -230,16 +184,16 @@ class App extends Component{
       const dChecks = diagonalChecks.checks;
 
       for(let i in hChecks){
-        console.log(i);
+        //console.log(i);
         var toBreak = false;
         const val = lastPlayer;
-        console.log("last Player " + val);
-        console.log("doing checks on " + hChecks[i]);
+       // console.log("last Player " + val);
+        //console.log("doing checks on " + hChecks[i]);
         for(const idx in hChecks[i]){
           var num = hChecks[i][idx];
           var key = "cell" + (num);
-          console.log("cell number " + key);
-          console.log("value in cell " + checkingCells[key].invalue);
+         // console.log("cell number " + key);
+         // console.log("value in cell " + checkingCells[key].invalue);
           if(checkingCells[key].invalue !== val){
                   toBreak = true;
                    break;
@@ -251,16 +205,16 @@ class App extends Component{
         }
       }
       for(let i in vChecks){
-        console.log(i);
+        //console.log(i);
         var toBreak = false;
         const val = lastPlayer;
-        console.log( "last Player " + val);
-        console.log( "doing checks on " + vChecks[i]);
+        //console.log( "last Player " + val);
+        //console.log( "doing checks on " + vChecks[i]);
         for(const idx in vChecks[i]){
           var num = vChecks[i][idx];
           var key = "cell" + (num);
-          console.log("cell number " + key);
-          console.log("value in cell " + checkingCells[key].invalue);
+          //console.log("cell number " + key);
+          //console.log("value in cell " + checkingCells[key].invalue);
           if(checkingCells[key].invalue !== val){
                   toBreak = true;
                    break;
@@ -273,16 +227,16 @@ class App extends Component{
       }
 
       for(let i in dChecks){
-        console.log(i);
+        //console.log(i);
         var toBreak = false;
         const val = lastPlayer;
-        console.log( "last Player " + val);
-        console.log("doing checks on " + dChecks[i]);
+        //console.log( "last Player " + val);
+        //console.log("doing checks on " + dChecks[i]);
         for(const idx in dChecks[i]){
           var num = dChecks[i][idx];
           var key = "cell" + (num);
-          console.log("cell number " + key);
-          console.log("value in cell " + checkingCells[key].invalue);
+          //console.log("cell number " + key);
+          //console.log("value in cell " + checkingCells[key].invalue);
           if(checkingCells[key].invalue !== val){
                   toBreak = true;
                    break;
@@ -336,7 +290,50 @@ class App extends Component{
       retrieveAiResult = () =>{
         const newBoard = JSON.parse(JSON.stringify(this.state.cells)); // use this to deep copy of JSON Objects
         const val =  getBestMove(newBoard);
-        console.log("Best Move is " + val.move + " with a score of " + val.v)
+        
+        console.log("Best Move is " + val.move + " with a score of " + val.score)
+        const key = "cell" + val.move;
+        const currSquare = document.getElementById(key);
+        currSquare.innerHTML = "O";
+        console.log("We have added an O");
+        this.state.playerX = true;
+        const updatedCellForm = {
+        ...this.state.cells};
+        const updateCell = {
+          ...updatedCellForm[key]
+        };
+        updateCell.touched = true;
+        updateCell.player = "AI";
+        updateCell.invalue = "O";
+        updatedCellForm[key] = updateCell;
+        this.state.cells[key] = updateCell;
+        //this.setState({cells: updatedCellForm});
+        this.state.cellsFilled += 1;
+        if(this.state.cellsFilled >= 5 && this.checkWinner("O")){
+          console.log("The AI has won the game");
+          document.getElementById("winner").classList.add("losing");
+          document.getElementById("winner").innerHTML = "AI has won the game (Os have beaten the Xs)"
+          this.state.toggleOff = true;
+          const winner = false;
+          let config = {
+            headers:{
+              Authorization: localStorage.getItem("thisToken")
+            }
+          }
+          const newData = {
+              winner
+          }
+          axios.patch("http://localhost:3001/boards", newData, config).then((response) => {
+            console.log(response.data)
+        
+          })
+          .catch( (error) => {
+            console.log(error.message);
+          
+          });
+        }
+        this.checkDraw();
+        this.submitDataOnBoard();
         return;
       }
 

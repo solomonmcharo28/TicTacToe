@@ -9,7 +9,7 @@ for(var i = 1; i<=9; i++){
 return actions;
 }
 export const getBestMove = (Board) => {
-    const ans = minMinimax(Board,"X", Number.NEGATIVE_INFINITY * -1, Number.POSITIVE_INFINITY);
+    const ans = minMinimax(Board,"X", -Number.MAX_VALUE, Number.MAX_VALUE, 1);
     return ans;
 };
 export const getNewBoard = (Board) => {
@@ -40,9 +40,9 @@ export const isTerminal = (Board, lastPlayer) =>{
     const notTerminal = {
         isTerminal: false,
         wonGame: false,
-        score: 0,
+        score: 0
     }
-    console.log(checkingCells);
+    //console.log(checkingCells);
     if(blanks <= 4){
     const result = {
          isTerminal: true,
@@ -116,71 +116,84 @@ export const isTerminal = (Board, lastPlayer) =>{
         return result;
       }
     }
+
 }
     return notTerminal;
+
     }
 
-export const maxMinimax = (Board, lastPlayer, alpha, beta) =>{
+export const maxMinimax = (Board, lastPlayer, alpha, beta, depth) =>{
     const valTerminal = isTerminal(Board, lastPlayer);
     const result = {
         score: valTerminal.score,
         move: null
     }
-
-    const value = {
-        score : Number.NEGATIVE_INFINITY,
-        move: -1
-    }
     if(valTerminal.isTerminal){
         return result;
+    }
+    const value = {
+        score : -Number.MAX_VALUE,
+        move: -1
     }
     const possibleMoves = getActions(Board);
     for(let a in possibleMoves){
         const nextMove = possibleMoves[a];
         const finalState = getResult(Board, "X", nextMove);
-        const val1 = minMinimax(finalState, "X", alpha, beta).score;
-        console.log(val1);
-        if(val1 > value.score){
-            value.score = val1;
+        const v1 = minMinimax(finalState, "X", alpha, beta, depth + 1).score;
+        if(v1 > value.score){
+            value.score = v1;
             value.move = nextMove;
             alpha = Math.max(alpha, value.score);
         }
         if(value.score >= beta){
             return value;
         }
+        
     }
     return value
 
 }
 
 
-export const minMinimax = (Board, lastPlayer, alpha, beta) =>{
+export const minMinimax = (Board, lastPlayer, alpha, beta, depth) =>{
     const valTerminal = isTerminal(Board, lastPlayer);
     const result = {
         score: valTerminal.score,
         move: null
     }
     if(valTerminal.isTerminal){
+        console.log(valTerminal.score);
         return result;
     }
     const value = {
-        score : Number.POSITIVE_INFINITY,
+        score : Number.MAX_VALUE,
         move: -1
     }
     const possibleMoves = getActions(Board);
     for(let a in possibleMoves){
+       // console.log(possibleMoves);
         const nextMove = possibleMoves[a];
         const finalState = getResult(Board, "O", nextMove);
-        const val1 = maxMinimax(finalState, "O", alpha, beta).score;
-        console.log(val1);
-        if(val1 < value.score){
-            value.score = val1;
+        //console.log(finalState, "This is the final State, the move is " + nextMove + " depth is " + depth)
+        const v1 = maxMinimax(finalState, "O", alpha, beta, depth + 1).score;
+        //console.log("v1: " + v1);
+
+        if(v1 < value.score){
+            //console.log("found a lower score");
+            value.score = v1;
             value.move = nextMove;
+            //console.log("value.score : "+ value.score + ", value.move: "+ value.move);
             beta = Math.min(beta, value.score);
         }
+        if(depth == 1){
+            //console.log("Checking first potential move, current move is " + nextMove + " current best move is " + value.move);
+            //console.log("The best score for this move is " + v1);
+        }
+        //console.log("value.score : "+ value.score + ", value.move: "+ value.move);
         if(value.score <= alpha){
             return value;
         }
+        
     }
     return value
 
