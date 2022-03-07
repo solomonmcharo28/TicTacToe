@@ -37,13 +37,7 @@ export const isTerminal = (Board, lastPlayer) =>{
     const vChecks = verticalChecks.checks;
     const dChecks = diagonalChecks.checks;
     const blanks = getActions(Board).length;
-    if(blanks == 0){
-        return {
-            isTerminal: true,
-            wonGame: false, 
-            score: 0
-        };
-    }
+ 
     const notTerminal = {
         isTerminal: false,
         wonGame: false,
@@ -127,6 +121,13 @@ export const isTerminal = (Board, lastPlayer) =>{
       }
     }
 
+}
+    if(blanks == 0){
+    return {
+        isTerminal: true,
+        wonGame: false, 
+        score: 0
+    };
 }
     return notTerminal;
 
