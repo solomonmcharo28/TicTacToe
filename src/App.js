@@ -288,8 +288,8 @@ class App extends Component{
       }
 
       retrieveAiResult = () =>{
-        const newBoard = JSON.parse(JSON.stringify(this.state.cells)); // use this to deep copy of JSON Objects
-        const val =  getBestMove(newBoard);
+        // const newBoard = JSON.parse(JSON.stringify(this.state.cells)); // use this to deep copy of JSON Objects
+        const val =  getBestMove(this.state.cells);
         
         console.log("Best Move is " + val.move + " with a score of " + val.score)
         const key = "cell" + val.move;

@@ -37,6 +37,13 @@ export const isTerminal = (Board, lastPlayer) =>{
     const vChecks = verticalChecks.checks;
     const dChecks = diagonalChecks.checks;
     const blanks = getActions(Board).length;
+    if(blanks == 0){
+        return {
+            isTerminal: true,
+            wonGame: false, 
+            score: 0
+        };
+    }
     const notTerminal = {
         isTerminal: false,
         wonGame: false,
@@ -69,7 +76,8 @@ export const isTerminal = (Board, lastPlayer) =>{
         }
       };
       if(!toBreak){
-        console.log(hChecks[i], " Winner is " + lastPlayer, " Score is " + result.score);
+        //console.log(hChecks[i], " Winner is " + lastPlayer, " Score is " + result.score);
+        //console.log(Board)
         return result;
       }
     }
@@ -90,7 +98,8 @@ export const isTerminal = (Board, lastPlayer) =>{
         }
       };
       if(!toBreak){
-        console.log(vChecks[i], " Winner is " + lastPlayer, " Score is " + result.score);
+        //console.log(vChecks[i], " Winner is " + lastPlayer, " Score is " + result.score);
+        //console.log(Board);
         return result;
       }
     }
@@ -112,7 +121,8 @@ export const isTerminal = (Board, lastPlayer) =>{
         }
       };
       if(!toBreak){
-        console.log(dChecks[i], " Winner is " + lastPlayer, " Score is " + result.score);
+        //console.log(dChecks[i], " Winner is " + lastPlayer, " Score is " + result.score);
+        //console.log(Board);
         return result;
       }
     }
@@ -162,7 +172,7 @@ export const minMinimax = (Board, lastPlayer, alpha, beta, depth) =>{
         move: null
     }
     if(valTerminal.isTerminal){
-        console.log(valTerminal.score);
+        //console.log(valTerminal.score);
         return result;
     }
     const value = {
@@ -182,7 +192,9 @@ export const minMinimax = (Board, lastPlayer, alpha, beta, depth) =>{
             //console.log("found a lower score");
             value.score = v1;
             value.move = nextMove;
-            //console.log("value.score : "+ value.score + ", value.move: "+ value.move);
+            if(depth == 1){
+            console.log("value.score : "+ value.score + ", value.move: "+ value.move);
+            }
             beta = Math.min(beta, value.score);
         }
         if(depth == 1){
