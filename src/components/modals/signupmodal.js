@@ -84,11 +84,17 @@ class SignUpModal extends Component{
      "cell8": "-",
      "cell9":"-"
         };
+        const completed = false;
+        const winner = "None";
+        const score = 0;
        //const owner = localStorage.getItem("newOwner");
       // console.log(owner + " failed request");
         const newData = {
           name,
           cells,
+          completed,
+          winner,
+          score
           //owner
         }
         axios.post("http://localhost:3001/boards" , newData, config)

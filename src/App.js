@@ -9,10 +9,12 @@ import{getActions, getBestMove, isTerminal} from './alphabeta.js'
 import SignUpModal from './components/modals/signupmodal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'
+import { FaBorderNone } from 'react-icons/fa';
 
 
 class App extends Component{
   state = {
+    showStats: false,
     playerName: "",
     playerX: true,
     otherState: "SomeOtherValue",
@@ -20,6 +22,11 @@ class App extends Component{
     lastPlayer: "-",
     toggleOff: false,
     cellsFilled: 0,
+    gamesPlayed : 1,
+    averageScore: 0,
+    gamesAIWon: 0,
+    gamesHumanWon: 0,
+    gamesDrew: 0,
     cells: {
       cell1 : {
             id: "cell1",
@@ -97,8 +104,43 @@ class App extends Component{
   }
 
   componentDidMount(){
-
-  }
+    let config = {
+      headers:{
+        Authorization: localStorage.getItem("thisToken")
+      }
+    }
+    axios.get("http://localhost:3001/boards", config).then((response) => {
+          console.log(response.data)
+           this.state.gamesPlayed = response.data.length;
+           console.log(response.data.length);
+           var draws = 0;
+           var wins = 0;
+           var losses = 0;
+           var score = 0;
+           for(var i = 0; i< response.data.length; i++){
+             if(response.data[i].winner === "AI"){
+               losses += 1;
+             }
+             else if(response.data[i].winner === "draw"){
+               draws +=1;
+             }
+             else{
+               wins += 1;
+             }
+             score += response.data[i].score;
+           }
+           this.state.gamesAIWon = losses;
+           this.state.gamesDrew = draws;
+           this.state.gamesHumanWon = wins;
+           this.state.averageScore = (score/response.data.length).toFixed(2);
+           console.log(this.state.gamesPlayed, this.state.gamesAIWon, this.state.gamesDrew,  this.state.gamesHumanWon,  this.state.averageScore);
+        })
+        .catch( (error) => {
+          console.log(error.message);
+        
+        });
+      }
+  
 
   toggleTacHandler = (event) =>{
     if(this.state.toggleOff){
@@ -134,19 +176,24 @@ class App extends Component{
       updatedCellForm[theID] = updateCell;
       this.state.cells[theID] = updateCell;
       this.state.cellsFilled += 1;
+      this.submitDataOnBoard();
       if(this.state.cellsFilled >= 5 && this.checkWinner("X")){
-         console.log("Human has won the game");
+         console.log(this.state.playerName + " has won the game");
          document.getElementById("winner").classList.add("winning");
          document.getElementById("winner").innerHTML = "Human has won the game (Xs have beaten the Os)"
          this.state.toggleOff = true;
-         const winner = true;
+         const winner = this.state.playerName;
+         const completed = true;
+         const score = 1 + (9 - this.state.cellsFilled)
          let config = {
           headers:{
             Authorization: localStorage.getItem("thisToken")
           }
         }
          const newData = {
-            winner
+            winner,
+            completed,
+            score
          }
          axios.patch("http://localhost:3001/boards", newData, config).then((response) => {
           console.log(response.data)
@@ -159,9 +206,9 @@ class App extends Component{
       }
            
       
-      this.checkDraw();
-      this.submitDataOnBoard();
-      this.retrieveAiResult();
+      if(!this.checkDraw()){
+        this.retrieveAiResult();
+      }
       return;
     }
 
@@ -252,7 +299,47 @@ class App extends Component{
       checkDraw = () =>{
         if(this.state.cellsFilled == 9){
           document.getElementById("winner").innerHTML = "The Game has Ended in a Draw"
+        
+        let config = {
+          headers:{
+            Authorization: localStorage.getItem("thisToken")
+          }
         }
+        const cells = {
+               "cell1" : this.state.cells.cell1.invalue,
+               "cell2" : this.state.cells.cell2.invalue,
+               "cell3" : this.state.cells.cell3.invalue,
+               "cell4" : this.state.cells.cell4.invalue,
+               "cell5" : this.state.cells.cell5.invalue,
+               "cell6" : this.state.cells.cell6.invalue,
+               "cell7" : this.state.cells.cell7.invalue,
+               "cell8": this.state.cells.cell8.invalue,
+               "cell9" : this.state.cells.cell9.invalue,
+           
+        }
+        const winner = "draw";
+        const completed = true;
+        const score = 0;
+        const newData = {
+             cells,
+             winner,
+             completed,
+             score
+        }
+        axios.patch("http://localhost:3001/boards" , newData, config)
+        .then((response) => {
+          console.log(response.data)
+      
+        })
+        .catch( (error) => {
+          console.log(error.message);
+        
+        });
+        return true;
+      }
+      else{
+        return false;
+      }
       }
       
       submitDataOnBoard = () =>{
@@ -279,6 +366,10 @@ class App extends Component{
         axios.patch("http://localhost:3001/boards" , newData, config)
         .then((response) => {
           console.log(response.data)
+          if(this.state.playerName === ""){
+            this.state.playerName = response.data.board.name;
+            console.log(this.state.playerName)
+          }
       
         })
         .catch( (error) => {
@@ -286,7 +377,11 @@ class App extends Component{
         
         });
       }
+      showStats = () =>{
+        const doesShow = this.state.showStats;
+        this.setState({showStats: !doesShow});
 
+      }
       retrieveAiResult = () =>{
         // const newBoard = JSON.parse(JSON.stringify(this.state.cells)); // use this to deep copy of JSON Objects
         const val =  getBestMove(this.state.cells);
@@ -309,19 +404,24 @@ class App extends Component{
         this.state.cells[key] = updateCell;
         //this.setState({cells: updatedCellForm});
         this.state.cellsFilled += 1;
+        this.submitDataOnBoard();
         if(this.state.cellsFilled >= 5 && this.checkWinner("O")){
           console.log("The AI has won the game");
           document.getElementById("winner").classList.add("losing");
           document.getElementById("winner").innerHTML = "AI has won the game (Os have beaten the Xs)"
           this.state.toggleOff = true;
-          const winner = false;
+          const winner = "AI";
+          const completed = true;
+          const score = -(1 + (9 - this.state.cellsFilled));
           let config = {
             headers:{
               Authorization: localStorage.getItem("thisToken")
             }
           }
           const newData = {
-              winner
+              winner,
+              completed,
+              score
           }
           axios.patch("http://localhost:3001/boards", newData, config).then((response) => {
             console.log(response.data)
@@ -333,7 +433,6 @@ class App extends Component{
           });
         }
         this.checkDraw();
-        this.submitDataOnBoard();
         return;
       }
 
@@ -342,14 +441,24 @@ class App extends Component{
    
 
   render(){
-
+  let stats = null
+  if(this.state.showStats){
+    stats = (<div>
+      <h1>Stats on the Game</h1>
+      <h4> Games Played : {this.state.gamesPlayed}</h4>
+      <h4> Average Score : {this.state.averageScore}</h4>
+      <h4>Games AI Won : {this.state.gamesAIWon}, Percentage : {((this.state.gamesAIWon)/(this.state.gamesPlayed) * 100).toFixed(2)}%</h4>
+      <h4>Games Human Won : {this.state.gamesHumanWon}, Percentage : {((this.state.gamesHumanWon)/(this.state.gamesPlayed) * 100).toFixed(2)}%</h4>
+      <h4>Games Drew : {this.state.gamesDrew}, Percentage : {((this.state.gamesDrew)/(this.state.gamesPlayed) * 100).toFixed(2)}%</h4>
+      </div>);
+  }
   
   return (
     <div className="App">
       <header className="App-header">
         <SignUpModal></SignUpModal>
         <h1> Tic Tac Toe</h1>
-        <p>This project will be Tic Tac Toe where the user competes against an AI that is based on the minimax algorithm</p>
+        <p>This project is a Tic Tac Toe where the user competes against an AI. <span style={{fontSize: 20,}}>(The AI is based on the minimax algorithm with alphabeta pruning)</span></p>
         <div>
          <table className="table1">
            <tbody>
@@ -392,8 +501,12 @@ class App extends Component{
          <br></br>
         <p id="winner">
         </p>
-        <Button onClick={() => window.location.reload(false)}>Refresh</Button>
+        <Button onClick={() => window.location.reload(false)}>New Game</Button>
+        <br></br>
+        <Button onClick = {this.showStats}> Show Stats</ Button>
+        {stats}
       </header>
+     
     </div>
   );
 }
