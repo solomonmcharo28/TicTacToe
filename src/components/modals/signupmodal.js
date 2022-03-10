@@ -57,7 +57,7 @@ class SignUpModal extends Component{
         const data = {
           name 
         }
-        axios.post('http://localhost:3001/users', data)
+        axios.post('https://soloandglenn-tictactoeapi.herokuapp.com/users', data)
         .then((response) => {
           console.log(response.data);
           const token = "Bearer " + response.data.token
@@ -97,7 +97,7 @@ class SignUpModal extends Component{
           score
           //owner
         }
-        axios.post("http://localhost:3001/boards" , newData, config)
+        axios.post("https://soloandglenn-tictactoeapi.herokuapp.com/boards" , newData, config)
         .then((response) => {
           console.log(response.data)
       

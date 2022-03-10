@@ -109,7 +109,7 @@ class App extends Component{
         Authorization: localStorage.getItem("thisToken")
       }
     }
-    axios.get("http://localhost:3001/boards", config).then((response) => {
+    axios.get("https://soloandglenn-tictactoeapi.herokuapp.com/boards", config).then((response) => {
           console.log(response.data)
            this.state.gamesPlayed = response.data.length;
            console.log(response.data.length);
@@ -195,7 +195,7 @@ class App extends Component{
             completed,
             score
          }
-         axios.patch("http://localhost:3001/boards", newData, config).then((response) => {
+         axios.patch("https://soloandglenn-tictactoeapi.herokuapp.com/boards", newData, config).then((response) => {
           console.log(response.data)
       
         })
@@ -326,7 +326,7 @@ class App extends Component{
              completed,
              score
         }
-        axios.patch("http://localhost:3001/boards" , newData, config)
+        axios.patch("https://soloandglenn-tictactoeapi.herokuapp.com/boards" , newData, config)
         .then((response) => {
           console.log(response.data)
       
@@ -363,7 +363,7 @@ class App extends Component{
         const newData = {
              cells
         }
-        axios.patch("http://localhost:3001/boards" , newData, config)
+        axios.patch("https://soloandglenn-tictactoeapi.herokuapp.com/boards" , newData, config)
         .then((response) => {
           console.log(response.data)
           if(this.state.playerName === ""){
@@ -423,7 +423,7 @@ class App extends Component{
               completed,
               score
           }
-          axios.patch("http://localhost:3001/boards", newData, config).then((response) => {
+          axios.patch("https://soloandglenn-tictactoeapi.herokuapp.com/boards", newData, config).then((response) => {
             console.log(response.data)
         
           })
